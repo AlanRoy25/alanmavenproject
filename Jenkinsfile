@@ -26,5 +26,27 @@ pipeline {
                  sh 'mvn install -Dmaven.test.skip=true'
             }
         }
+        stage('Sonarqube Analysis') {
+          environment {
+            // Tool name must match with Jenkins Tools for Sonar Scanner - Manage Jenkins >> Tools
+            scannerHome = tool 'sonar-scanner'
+          }
+           steps {
+      // Env value must match with the Sonar Server Name - Manage Jenkins >> System
+         withSonarQubeEnv('sonarqube-server') {
+        sh "${scannerHome}/bin/sonar-scanner"
+       }
+      }
+     }
+    }
+}
+
+// Deploy the application to the target environment
+stage('Deploy') {
+    steps {
+        echo 'Deploying the application to the target environment'
+    }
+        
+      }
     }
 }

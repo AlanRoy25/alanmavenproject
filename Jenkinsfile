@@ -43,5 +43,30 @@ pipeline {
         sh 'mvn surefire-report:report'
       }
     }
+    def registry = 'https://binhost.jfrog.io'
+    stage("Jar Publish") {
+      steps {
+        script {
+          echo '<--------------- Started Publishing Jar --------------->'
+            def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifactory_token"
+            def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+            def uploadSpec = """{
+                "files": [
+                  {
+                    "pattern": "jarstaging/(*)",
+                    "target": "libs-release-local/{1}",
+                    "flat": "false",
+                    "props" : "${properties}",
+                    "exclusions": [ "*.sha1",s "*.md5"]
+                  }
+                ]
+            }"""
+            def buildInfo = server.upload(uploadSpec)
+            buildInfo.env.collect()
+            server.publishBuildInfo(buildInfo)
+            echo '<--------------- Jar Published Successfully --------------->'
+        }
+      }
+    }
   }
 }

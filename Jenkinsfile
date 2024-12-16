@@ -38,5 +38,10 @@ pipeline {
         }
       }
     }
+    stage('Unit Testing Stage') {
+      steps {
+        sh 'mvn test'  // Run tests to generate the report
+      }
+    }
   }
 }

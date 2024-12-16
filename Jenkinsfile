@@ -34,13 +34,7 @@ pipeline {
       steps {
         // Env value must match with the Sonar Server Name - Manage Jenkins >> System
         withSonarQubeEnv('sonarqube-server') {
-          sh """
-          ${scannerHome}/bin/sonar-scanner \
-          -Dsonar.projectKey=alan-sonarorg_alan-sonarproject \
-          -Dsonar.organization=alan-sonarorg \
-          -Dsonar.host.url=https://sonarcloud.io \
-          -Dsonar.login=6e19a524459890d5186781f5da366739a0e59e25
-          """
+           sh "${scannerHome}/bin/sonar-scanner"
         }
       }
     }

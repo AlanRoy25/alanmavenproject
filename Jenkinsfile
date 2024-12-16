@@ -40,6 +40,7 @@ pipeline {
           -Dsonar.organization=alan-sonarorg \
           -Dsonar.host.url=https://sonarcloud.io \
           -Dsonar.login=6e19a524459890d5186781f5da366739a0e59e25
+          """
         }
       }
     }

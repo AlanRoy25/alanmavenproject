@@ -47,24 +47,18 @@ pipeline {
                 sh 'mvn surefire-report:report'
             }
         }
-
         stage('Jar Publish') {
             steps {
                 script {
                     echo '<--------------- Started Publishing Jar --------------->'
 
-                    // Verify that the directory exists
-                    if (!fileExists('jarstaging')) {
-                        error 'Directory "jarstaging/" does not exist or contains no .jar files.'
-                    }
-
-                    // Set up Artifactory server
                     def server = Artifactory.newServer(
                         url: "${REGISTRY_URL}/artifactory",
                         credentialsId: "artifactory_token"
                     )
 
-                    def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}"
+                    def properties = "buildid=${env.BUILD_ID},commitid=${env.GIT_COMMIT}"
+
                     def uploadSpec = """{
                         "files": [
                             {
@@ -77,17 +71,18 @@ pipeline {
                         ]
                     }"""
 
-                    // Log the uploadSpec
                     echo "Upload Specification: ${uploadSpec}"
 
-                    // Retry mechanism for upload
-                    retry(3) {
+                    try {
                         def buildInfo = server.upload(uploadSpec)
                         buildInfo.env.collect()
                         server.publishBuildInfo(buildInfo)
-                    }
 
-                    echo '<--------------- Jar Published Successfully --------------->'
+                        echo '<--------------- Jar Published Successfully --------------->'
+                    } catch (Exception e) {
+                        echo "Error during JAR publication: ${e.message}"
+                        throw e
+                    }
                 }
             }
         }
